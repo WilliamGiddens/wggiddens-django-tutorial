@@ -18,5 +18,12 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ['pub_date']
     search_fields = ['question_text']
 
+    if Question is True:
+        print('Question was a success')
+    elif Question is False:
+        print('Question was wrong')
+    else:
+        print('Error')
+        
 
 admin.site.register(Question, QuestionAdmin)
