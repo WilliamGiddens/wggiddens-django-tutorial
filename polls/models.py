@@ -23,12 +23,18 @@ class Question(models.Model):
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
 
     def generate_random_choices(self):
-        if self is None:
-            raise ValueError('Choice cannot be empty')
-        if self is self:
-            raise ValueError('Choice cannot be the same')
+        if self.id is None:
+            raise ValueError('You have to save your Question before you can generate choices.')
+        if self.choice_set.count() > 0:
+            raise ValueError('You cannot generate choices on a Question that already has choices.')
         response = requests.get('https://random-data-api.com/api/name/random_name?size=4')
-        self = response.json()
+        if self.assertEqual(response.status_code, 200):
+            pass
+        else:
+            RuntimeError('Server is down')
+        for name_dict in response.json():
+            choice_obj = Choice(question=self, choice_text=name_dict["two_word_name"])
+            choice_obj.save()
 
 
 class Choice(models.Model):

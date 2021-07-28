@@ -1,5 +1,6 @@
 from django.contrib import admin
-
+from django.contrib import messages
+from django.utils.translation import ngettext
 from .models import Choice, Question
 
 
@@ -18,12 +19,17 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ['pub_date']
     search_fields = ['question_text']
 
-    if Question is True:
-        print('Question was a success')
-    elif Question is False:
-        print('Question was wrong')
-    else:
-        print('Error')
+    actions = ['make_published']
+
+    @admin.action(description='Mark select questions')
+    def make_published(self, request, queryset):
+        updated = queryset.update(status='q')
+        self.message_user(request, ngettext(
+            messages.success(request, '%d questions were successfully selected.'),
+            messages.warning(request, 'Not all questions selected'),
+            messages.error(request, 'None of the questions were selected'),
+            updated,
+        ) % updated, messages.SUCCESS)
         
 
 admin.site.register(Question, QuestionAdmin)
